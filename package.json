@@ -1,0 +1,31 @@
+{
+  "name": "appsyncmasterclass-backend",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Backend for the AppSync Masterclass demo app",
+  "main": "index.js",
+  "scripts": {
+    "sls": "sls",
+    "deploy:dev": "sls deploy --stage dev --region us-east-1 --verbose",
+    "remove:dev": "sls remove --stage dev --region us-east-1 --verbose"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/daroleary/appsyncmasterclass-backend.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/daroleary/appsyncmasterclass-backend/issues"
+  },
+  "homepage": "https://github.com/daroleary/appsyncmasterclass-backend#readme",
+  "devDependencies": {
+    "serverless": "^3.38.0",
+    "serverless-appsync-plugin": "^2.5.2"
+  },
+  "volta": {
+    "node": "20.9.0",
+    "npm": "9.8.0"
+  }
+}
