@@ -1,0 +1,8 @@
+name: appsync-masterclass-darren-${self:custom.stage}
+schema: schema.api.graphql
+authentication:
+  type: AMAZON_COGNITO_USER_POOLS
+  config:
+    userPoolId: !Ref CognitoUserPool
+    awsRegion: ${aws:region}
+    defaultAction: ALLOW

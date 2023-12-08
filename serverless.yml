@@ -1,0 +1,99 @@
+service: appsyncmasterclass-backend-darren
+# app and org for use with dashboard.serverless.com
+#app: your-app-name
+#org: your-org-name
+
+# You can pin your service to only deploy with a specific Serverless version
+# Check out our docs for more details
+frameworkVersion: "3"
+
+plugins:
+  - serverless-appsync-plugin
+
+provider:
+  name: aws
+  runtime: nodejs20.x
+  memorySize: 3008
+  stage: ${self:custom.stage}
+  region: us-east-1
+  apiGateway:
+    minimumCompressionSize: 1024 # Enable gzip compression for responses > 1 KB
+  tags:
+    Cost Center: AppSync Proposals
+    Infrastructure Service: AppSync
+  stackTags:
+    Cost Center: AppSync Proposals Stack
+    Infrastructure Service: AppSync Stack
+  environment:
+    NODE_OPTIONS: --dns-result-order=ipv4first
+    BASE_URL: ${self:custom.BACKEND_URL.${self:custom.stage}}
+    AWS_NODEJS_CONNECTION_REUSE_ENABLED: 1
+    STAGE: ${self:custom.stage}
+
+package:
+  exclude:
+    - package-lock.json
+    - package.json
+
+custom:
+    stage: ${opt:stage, 'dev'}
+    BACKEND_URL:
+      dev: https://dev.darren.appsyncmasterclass.com/
+appSync:
+  ${file(./serverless.appsync-api.yml)}
+#  name: my-api
+#  authentication:
+#    type: API_KEY
+
+#  resolvers:
+#    Query.user:
+#      dataSource: my-table
+
+#  dataSources:
+#    my-table:
+#      type: AMAZON_DYNAMODB
+#      config:
+#        tableName: ${sls:stage}-data
+
+resources:
+  Resources:
+    CognitoUserPool:
+      Type: AWS::Cognito::UserPool
+      Properties:
+        UserPoolName: appsync-masterclass-darren-user-pool-${self:custom.stage}
+        AliasAttributes:
+          - email
+        AutoVerifiedAttributes:
+          - email
+        Policies:
+          PasswordPolicy:
+            MinimumLength: 6
+            RequireLowercase: false
+            RequireNumbers: false
+            RequireSymbols: false
+            RequireUppercase: false
+        Schema:
+          - AttributeDataType: String
+            Name: email
+            Required: true
+            Mutable: true
+    CognitoUserPoolClient:
+      Type: "AWS::Cognito::UserPoolClient"
+      Properties:
+        ClientName: appsync-masterclass-darren-user-pool-client-${self:custom.stage}
+        UserPoolId:
+          Ref: CognitoUserPool
+        GenerateSecret: false
+        ExplicitAuthFlows:
+          - ALLOW_USER_SRP_AUTH
+          - ALLOW_USER_PASSWORD_AUTH
+          - ALLOW_REFRESH_TOKEN_AUTH
+        PreventUserExistenceErrors: ENABLED
+        RefreshTokenValidity: 30
+        AllowedOAuthFlowsUserPoolClient: false
+  Outputs:
+     CognitoUserPoolId:
+       Value:
+         Ref: CognitoUserPool
+#       Description: "Description for the output"
+#       Value: "Some output value"
