@@ -1,4 +1,4 @@
-name: appsync-masterclass-darren-${self:custom.stage}
+name: appsync-darren-${self:custom.stage}
 schema: schema.api.graphql
 authentication:
   type: AMAZON_COGNITO_USER_POOLS
