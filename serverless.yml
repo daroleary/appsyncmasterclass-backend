@@ -8,6 +8,7 @@ service: appsync-darren
 frameworkVersion: "3"
 
 plugins:
+  - serverless-esbuild
   - serverless-appsync-plugin
   - serverless-iam-roles-per-function
   - serverless-export-env
@@ -30,7 +31,8 @@ provider:
     NODE_OPTIONS: --dns-result-order=ipv4first
     AWS_NODEJS_CONNECTION_REUSE_ENABLED: 1
     STAGE: ${self:custom.stage}
-    COGNITO_USER_POOL_ID: us-east-1_OuZC6z2fC
+    COGNITO_USER_POOL_ID: us-east-1_QxTIKqRej
+    COGNITO_USER_POOL_CLIENT_ID: 33c0duf245sc5usb4ksas337r1
 
 package:
   exclude:
@@ -92,8 +94,6 @@ resources:
       Type: AWS::Cognito::UserPool
       Properties:
         UserPoolName: appsync-darren-user-pool-${self:custom.stage}
-        AliasAttributes:
-          - email
         AutoVerifiedAttributes:
           - email
         Policies:
@@ -103,6 +103,8 @@ resources:
             RequireNumbers: false
             RequireSymbols: false
             RequireUppercase: false
+        UsernameAttributes:
+          - email
         Schema:
           - AttributeDataType: String
             Name: email
@@ -139,3 +141,6 @@ resources:
     CognitoUserPoolId:
       Value:
         Ref: CognitoUserPool
+    CognitoUserPoolClientId:
+      Value:
+        Ref: CognitoUserPoolClient
