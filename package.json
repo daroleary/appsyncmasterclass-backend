@@ -12,6 +12,8 @@
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs --ignore-path .gitignore",
     "format": "prettier --write src/",
     "test": "vitest",
+    "test:integration": "vitest integration",
+    "test:e2e": "vitest e2e",
     "sls": "sls",
     "export-env:global": "sls export-env",
     "export-env:fnc": "sls export-env --function confirmUserSignup",
@@ -37,6 +39,7 @@
     "@vue/eslint-config-prettier": "^8.0.0",
     "autoprefixer": "^10.4.16",
     "dotenv": "^16.3.1",
+    "esbuild": "^0.19.8",
     "eslint": "^8.55.0",
     "eslint-plugin-vue": "^9.19.2",
     "postcss": "^8.4.32",
@@ -45,6 +48,7 @@
     "rollup-plugin-postcss": "^4.0.2",
     "serverless": "^3.38.0",
     "serverless-appsync-plugin": "^2.5.2",
+    "serverless-esbuild": "^1.50.0",
     "serverless-export-env": "^2.2.0",
     "serverless-iam-roles-per-function": "^3.2.0",
     "tailwindcss": "^3.3.6",
@@ -57,6 +61,7 @@
     "npm": "9.8.0"
   },
   "dependencies": {
+    "@aws-sdk/client-cognito-identity-provider": "^3.470.0",
     "@aws-sdk/client-dynamodb": "^3.468.0",
     "@aws-sdk/lib-dynamodb": "^3.468.0",
     "chance": "^1.1.11",

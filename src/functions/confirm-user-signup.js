@@ -1,6 +1,6 @@
 import Chance from 'chance'
 
-import dynamoDB from '../../src/storage/dynamo/index.js'
+import dynamoDB from '../storage/dynamo/index.js'
 
 const chance = new Chance()
 const { USERS_TABLE } = process.env
