@@ -61,11 +61,17 @@
     "npm": "9.8.0"
   },
   "dependencies": {
+    "@apollo/client": "^3.8.8",
     "@aws-sdk/client-cognito-identity-provider": "^3.470.0",
     "@aws-sdk/client-dynamodb": "^3.468.0",
+    "@aws-sdk/credential-provider-node": "^3.470.0",
     "@aws-sdk/lib-dynamodb": "^3.468.0",
+    "aws-appsync-auth-link": "^3.0.7",
+    "aws-appsync-subscription-link": "^3.1.2",
     "chance": "^1.1.11",
+    "graphql-tag": "^2.12.6",
     "install": "^0.13.0",
-    "npm": "^10.2.5"
+    "npm": "^10.2.5",
+    "react": "^18.2.0"
   }
 }

@@ -31,8 +31,9 @@ provider:
     NODE_OPTIONS: --dns-result-order=ipv4first
     AWS_NODEJS_CONNECTION_REUSE_ENABLED: 1
     STAGE: ${self:custom.stage}
-    COGNITO_USER_POOL_ID: us-east-1_QxTIKqRej
-    COGNITO_USER_POOL_CLIENT_ID: 33c0duf245sc5usb4ksas337r1
+    APPSYNC_ENDPOINT_URL: https://5pxufbtwqbg6xicm7ne4inh27e.appsync-api.us-east-1.amazonaws.com/graphql
+    COGNITO_USER_POOL_ID: us-east-1_lDEjvbxGo
+    COGNITO_USER_POOL_CLIENT_ID: 5s0iv5mc3mbgi7d2ltlapb4h0h
 
 package:
   exclude:
@@ -45,21 +46,9 @@ custom:
     export-env:
       filename: .env
       overwrite: true
+
 appSync:
   ${file(./serverless.appsync-api.yml)}
-#  name: my-api
-#  authentication:
-#    type: API_KEY
-
-#  resolvers:
-#    Query.user:
-#      dataSource: my-table
-
-#  dataSources:
-#    my-table:
-#      type: AMAZON_DYNAMODB
-#      config:
-#        tableName: ${sls:stage}-data
 
 functions:
   confirmUserSignup:
@@ -67,10 +56,15 @@ functions:
     environment:
       USERS_TABLE: !Ref UsersTable
     iamRoleStatements:
-        - Effect: Allow
-          Action:
-            - dynamodb:PutItem
-          Resource: !GetAtt UsersTable.Arn
+      - Effect: Allow
+        Action:
+          - dynamodb:PutItem
+        Resource: !GetAtt UsersTable.Arn
+      - Effect: Allow
+        Action:
+          - cognito-idp:AdminUpdateUserAttributes
+        Resource:
+          Fn::Sub: "arn:aws:cognito-idp:${AWS::Region}:${AWS::AccountId}:userpool/${self:provider.environment.COGNITO_USER_POOL_ID}"
 
 resources:
   Resources:
@@ -94,8 +88,6 @@ resources:
       Type: AWS::Cognito::UserPool
       Properties:
         UserPoolName: appsync-darren-user-pool-${self:custom.stage}
-        AutoVerifiedAttributes:
-          - email
         Policies:
           PasswordPolicy:
             MinimumLength: 6
@@ -135,6 +127,32 @@ resources:
         PreventUserExistenceErrors: ENABLED
         RefreshTokenValidity: 30
         AllowedOAuthFlowsUserPoolClient: false
+    # TODO: Replace with more restrictive policy
+    AppSyncCloudWatchLogsRole:
+      Type: 'AWS::IAM::Role'
+      Properties:
+        AssumeRolePolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+            - Effect: 'Allow'
+              Principal:
+                Service:
+                  - 'appsync.amazonaws.com'
+              Action:
+                - 'sts:AssumeRole'
+        Policies:
+          - PolicyName: 'AppSyncLoggingPolicy'
+            PolicyDocument:
+              Version: '2012-10-17'
+              Statement:
+                - Effect: 'Allow'
+                  Action:
+                    - 'logs:CreateLogGroup'
+                    - 'logs:CreateLogStream'
+                    - 'logs:PutLogEvents'
+                  Resource:
+                    - 'arn:aws:logs:*:*:*'
+
   Outputs:
     AwsRegion:
       Value: ${self:custom.region}
