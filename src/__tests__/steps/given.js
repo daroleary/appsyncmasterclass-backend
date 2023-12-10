@@ -1,4 +1,5 @@
 import Chance from 'chance'
+import { confirmUserSignUp, signIn, signInWithNewConfirmedUser, signUp } from '../../auth/cognito/index.js'
 
 const chance = new Chance()
 
@@ -15,4 +16,10 @@ export const a_random_user = () => {
     password,
     email
   }
+}
+
+export const an_authenticated_user = async () => {
+  const { email, name, password } = a_random_user()
+
+  return await signInWithNewConfirmedUser({ email, name, password })
 }

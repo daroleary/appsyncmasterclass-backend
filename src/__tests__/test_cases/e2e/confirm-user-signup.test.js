@@ -14,6 +14,8 @@ describe('when a user signs up', () => {
 
     const user = await a_user_signs_up({name, email, password})
 
+    console.log(`user: ${JSON.stringify(user, null, 2)}`)
+
     const dbUser = await user_exists_in_UsersTable(user.username)
 
     expect(dbUser).toMatchObject({
@@ -23,7 +25,7 @@ describe('when a user signs up', () => {
       followersCount: 0,
       followingCount: 0,
       tweetsCount: 0,
-      likesCounts: 0
+      likesCount: 0
     })
 
     const [firstName, lastName] = name.split(' ')

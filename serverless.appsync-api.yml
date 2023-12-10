@@ -6,3 +6,37 @@ authentication:
     userPoolId: !Ref CognitoUserPool
     awsRegion: ${aws:region}
     defaultAction: ALLOW
+
+logging:
+  roleArn: { 'Fn::GetAtt': [ 'AppSyncCloudWatchLogsRole', 'Arn' ] }
+  level: 'ALL'  # Set to NONE, ERROR, or ALL
+  retentionInDays: 3
+
+pipelineFunctions:
+  getMyProfile:
+    dataSource: usersTable
+    code: src/pipelineFunctions/getMyProfile.js
+
+resolvers:
+  Query.getMyProfile:
+    functions:
+      - getMyProfile
+
+dataSources:
+  none:
+    type: NONE
+  usersTable:
+    type: AMAZON_DYNAMODB
+    description: Message Table
+    config:
+      tableName: !Ref UsersTable
+#        serviceRoleArn:
+#          Fn::GetAtt:
+#            - AppSyncDynamoDBServiceRole
+#            - Arn
+#    CognitoUserLambda:
+#      type: AWS_LAMBDA
+#      description: Cognito User Lambda
+#      config:
+#        functionName: CognitoUserLambda
+
