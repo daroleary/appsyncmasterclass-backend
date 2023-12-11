@@ -1,7 +1,7 @@
 import { beforeAll, expect, describe, test } from 'vitest'
 
 import { an_authenticated_user } from '../../steps/given.js'
-import { a_user_calls_getMyProfile } from '../../steps/when.js'
+import { a_user_calls_getMyProfile, a_user_calls_editMyProfile } from '../../steps/when.js'
 
 import Chance from 'chance'
 
@@ -35,5 +35,18 @@ describe('Given an authenticated user', () => {
     const [firstName, lastName] = profile.name.split(' ')
     expect(profile.screenName).toContain(firstName)
     expect(profile.screenName).toContain(lastName)
+  })
+
+  test('The user can edit his profile with editMyProfile', async () => {
+    const newName = chance.first()
+    const input = {
+      name: newName
+    }
+    const newProfile = await a_user_calls_editMyProfile({ input, token: user.accessToken })
+
+    expect(newProfile).toMatchObject({
+      ...profile,
+      name: newName
+    })
   })
 })

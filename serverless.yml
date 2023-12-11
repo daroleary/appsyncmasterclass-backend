@@ -9,9 +9,9 @@ frameworkVersion: "3"
 
 plugins:
   - serverless-esbuild
+  - serverless-export-env
   - serverless-appsync-plugin
   - serverless-iam-roles-per-function
-  - serverless-export-env
 
 provider:
   name: aws
@@ -162,3 +162,6 @@ resources:
     CognitoUserPoolClientId:
       Value:
         Ref: CognitoUserPoolClient
+    # TODO: try and get this to populate properly using serverless-manifest-plugin
+#    ApiUrl:
+#      Value: !GetAtt Appsync-darren-dev.GraphQLUrl

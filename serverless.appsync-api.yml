@@ -16,11 +16,17 @@ pipelineFunctions:
   getMyProfile:
     dataSource: usersTable
     code: src/pipelineFunctions/getMyProfile.js
+  editMyProfile:
+    dataSource: usersTable
+    code: src/pipelineFunctions/editMyProfile.js
 
 resolvers:
   Query.getMyProfile:
     functions:
       - getMyProfile
+  Mutation.editMyProfile:
+    functions:
+      - editMyProfile
 
 dataSources:
   none:
