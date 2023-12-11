@@ -13,9 +13,6 @@ describe('when a user signs up', () => {
     const { name, email, password } = a_random_user()
 
     const user = await a_user_signs_up({name, email, password})
-
-    console.log(`user: ${JSON.stringify(user, null, 2)}`)
-
     const dbUser = await user_exists_in_UsersTable(user.username)
 
     expect(dbUser).toMatchObject({

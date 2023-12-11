@@ -37,8 +37,6 @@ const verifyUserEmail = async (event) => {
 export const handler = async (event) => {
   if (event.triggerSource === 'PostConfirmation_ConfirmSignUp') {
 
-    console.log(`confirm-user-signup: ${JSON.stringify(event, null, 2)}`)
-
     if (event.request.userAttributes && event.request.userAttributes.email_verified !== 'true') {
       await verifyUserEmail(event)
     }
