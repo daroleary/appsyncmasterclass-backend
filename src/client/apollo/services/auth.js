@@ -2,6 +2,7 @@ import { client, setToken } from '../../../storage/apollo';
 import {
   getMyProfile as getMyProfileRq,
   editMyProfile as editMyProfileRq,
+  tweet as tweetRq,
 } from '../requests/auth';
 
 export async function getMyProfile({ token }) {
@@ -16,5 +17,13 @@ export async function editMyProfile({ input, token }) {
   return editMyProfileRq({
     client: client(),
     input,
+  });
+}
+
+export async function tweet({ text, token }) {
+  setToken(token)
+  return tweetRq({
+    client: client(),
+    text,
   });
 }

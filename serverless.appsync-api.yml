@@ -12,37 +12,64 @@ logging:
   level: 'ALL'  # Set to NONE, ERROR, or ALL
   retentionInDays: 3
 
+# see https://github.com/sid88in/serverless-appsync-plugin/blob/master/doc/pipeline-functions.md
 pipelineFunctions:
   getMyProfile:
     dataSource: usersTable
     code: src/pipelineFunctions/getMyProfile.js
+
   editMyProfile:
     dataSource: usersTable
     code: src/pipelineFunctions/editMyProfile.js
+
+  tweetFunction:
+    dataSource: tweet
 
 resolvers:
   Query.getMyProfile:
     functions:
       - getMyProfile
+
   Mutation.editMyProfile:
     functions:
       - editMyProfile
 
+  Mutation.tweet:
+    functions:
+      - tweetFunction
+
 dataSources:
   none:
     type: NONE
+
   usersTable:
     type: AMAZON_DYNAMODB
     description: Message Table
     config:
       tableName: !Ref UsersTable
-#        serviceRoleArn:
-#          Fn::GetAtt:
-#            - AppSyncDynamoDBServiceRole
-#            - Arn
-#    CognitoUserLambda:
-#      type: AWS_LAMBDA
-#      description: Cognito User Lambda
-#      config:
-#        functionName: CognitoUserLambda
 
+  tweet:
+    type: AWS_LAMBDA
+    description: update dynamoDB with changes from new tweet
+    config:
+      function:
+        handler: src/pipelineFunctions/tweet.handler
+        environment:
+          USERS_TABLE: !Ref UsersTable
+          TWEETS_TABLE: !Ref TweetsTable
+          TIMELINES_TABLE: !Ref TimelinesTable
+        iamRoleStatements:
+          - Effect: Allow
+            Action:
+              - lambda:invokeFunction
+            Resource: '*'
+          - Effect: Allow
+            Action:
+              - dynamodb:UpdateItem
+            Resource: !GetAtt UsersTable.Arn
+          - Effect: Allow
+            Action:
+              - dynamodb:PutItem
+            Resource:
+              - !GetAtt TweetsTable.Arn
+              - !GetAtt TimelinesTable.Arn
