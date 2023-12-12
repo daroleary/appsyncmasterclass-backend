@@ -31,9 +31,9 @@ provider:
     NODE_OPTIONS: --dns-result-order=ipv4first
     AWS_NODEJS_CONNECTION_REUSE_ENABLED: 1
     STAGE: ${self:custom.stage}
-    APPSYNC_ENDPOINT_URL: https://5pxufbtwqbg6xicm7ne4inh27e.appsync-api.us-east-1.amazonaws.com/graphql
-    COGNITO_USER_POOL_ID: us-east-1_lDEjvbxGo
-    COGNITO_USER_POOL_CLIENT_ID: 5s0iv5mc3mbgi7d2ltlapb4h0h
+    APPSYNC_ENDPOINT_URL: https://s6wq7i6rn5evnduqxau3ync5aa.appsync-api.us-east-1.amazonaws.com/graphql
+    COGNITO_USER_POOL_ID: us-east-1_3SAHiArxC
+    COGNITO_USER_POOL_CLIENT_ID: 58ocba4hqera867etecf72s5av
 
 package:
   exclude:
@@ -52,7 +52,7 @@ appSync:
 
 functions:
   confirmUserSignup:
-    handler: src/functions/confirm-user-signup.handler
+    handler: src/functions/confirmUserSignup.handler
     environment:
       USERS_TABLE: !Ref UsersTable
     iamRoleStatements:
@@ -83,6 +83,53 @@ resources:
             Value: ${self:custom.stage}
           - Key: Name
             Value: users-table
+
+    TweetsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        BillingMode: PAY_PER_REQUEST
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+          - AttributeName: creator
+            AttributeType: S
+        GlobalSecondaryIndexes:
+          - IndexName: byCreator
+            KeySchema:
+              - AttributeName: creator
+                KeyType: HASH
+              - AttributeName: id
+                KeyType: RANGE
+            Projection:
+              ProjectionType: ALL
+        Tags:
+          - Key: Environment
+            Value: ${self:custom.stage}
+          - Key: Name
+            Value: tweets-table
+
+    TimelinesTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        BillingMode: PAY_PER_REQUEST
+        KeySchema:
+          - AttributeName: userId
+            KeyType: HASH
+          - AttributeName: tweetId
+            KeyType: RANGE
+        AttributeDefinitions:
+          - AttributeName: userId
+            AttributeType: S
+          - AttributeName: tweetId
+            AttributeType: S
+        Tags:
+          - Key: Environment
+            Value: ${self:custom.stage}
+          - Key: Name
+            Value: timelines-table
 
     CognitoUserPool:
       Type: AWS::Cognito::UserPool
@@ -127,6 +174,7 @@ resources:
         PreventUserExistenceErrors: ENABLED
         RefreshTokenValidity: 30
         AllowedOAuthFlowsUserPoolClient: false
+
     # TODO: Replace with more restrictive policy
     AppSyncCloudWatchLogsRole:
       Type: 'AWS::IAM::Role'

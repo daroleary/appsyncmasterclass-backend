@@ -41,3 +41,17 @@ export const editMyProfileMutation = gql`
         }
     }
 `;
+
+export const tweetMutation = gql`
+    mutation tweet($text: String!) {
+        tweet(text: $text) {
+            createdAt
+            id
+            likes
+            replies
+            retweets
+            text
+            createdAt
+        }
+    }
+`;
