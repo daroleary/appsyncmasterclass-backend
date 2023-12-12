@@ -55,3 +55,42 @@ export const tweetMutation = gql`
         }
     }
 `;
+
+export const getTweetsQuery = gql`
+    query getTweets($userId: ID!, $limit: Int!, $nextToken: String) {
+        getTweets(userId: $userId, limit: $limit, nextToken: $nextToken) {
+            nextToken
+            __typename
+            tweets {
+                createdAt
+                id
+                profile {
+                    id
+                    name
+                    screenName
+                    __typename
+                    ... on MyProfile {
+                        id
+                        name
+                        followersCount
+                        followingCount
+                    }
+                    ... on OtherProfile {
+                        id
+                        name
+                        followersCount
+                        followingCount
+                    }
+                }
+                ... on Tweet {
+                    id
+                    likes
+                    replies
+                    retweets
+                    text
+                    __typename
+                }
+            }
+        }
+    }
+`;

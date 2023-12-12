@@ -8,5 +8,11 @@ module.exports = {
   ],
   parserOptions: {
     ecmaVersion: 'latest'
-  }
+  },
+  overrides: [
+    {
+      files: ['src/pipelineFunctions/**/*.js'],
+      'extends': ['plugin:@aws-appsync/base'],
+    },
+  ],
 }
