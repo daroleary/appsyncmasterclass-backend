@@ -1,4 +1,9 @@
-import { getMyProfileQuery, editMyProfileMutation, tweetMutation } from '../api/auth'
+import {
+  getMyProfileQuery,
+  editMyProfileMutation,
+  tweetMutation,
+  getTweetsQuery,
+} from '../api/auth'
 
 export async function getMyProfile({ client }) {
   try {
@@ -45,3 +50,21 @@ export async function tweet({ text, client }) {
     return null;
   }
 }
+
+  export async function getTweets({ username, limit, nextToken, client }) {
+    try {
+      const { data } = await client.query({
+        query: getTweetsQuery,
+        variables: {
+          userId: username,
+          limit,
+          nextToken,
+        },
+      });
+
+      return data.getTweets;
+    } catch (error) {
+      console.log('Error calling graphQL API: getTweets', error)
+      return null;
+    }
+  }

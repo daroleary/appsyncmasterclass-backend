@@ -32,6 +32,8 @@
   },
   "homepage": "https://github.com/daroleary/appsyncmasterclass-backend#readme",
   "devDependencies": {
+    "@aws-appsync/eslint-plugin": "^1.6.0",
+    "@aws-appsync/utils": "^1.6.0",
     "@aws-sdk/client-lambda": "^3.470.0",
     "@rushstack/eslint-patch": "^1.6.0",
     "@vitejs/plugin-vue": "^4.5.2",

@@ -1,3 +1,5 @@
+/* eslint-disable @aws-appsync/no-async */
+/* eslint-disable @aws-appsync/no-await */
 import dynamoDB from '../storage/dynamo/index.js'
 import ulid from 'ulid'
 import { TweetTypes } from '../lib/constants.js'

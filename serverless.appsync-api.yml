@@ -25,10 +25,23 @@ pipelineFunctions:
   tweetFunction:
     dataSource: tweet
 
+  tweets:
+    dataSource: tweetsTable
+    code: src/pipelineFunctions/tweets.js
+
+  tweetProfile:
+    dataSource: usersTable
+    code: src/pipelineFunctions/tweetProfile.js
+
+
 resolvers:
   Query.getMyProfile:
     functions:
       - getMyProfile
+
+  Query.getTweets:
+    functions:
+      - tweets
 
   Mutation.editMyProfile:
     functions:
@@ -38,15 +51,26 @@ resolvers:
     functions:
       - tweetFunction
 
+  # Nested Fields
+  Tweet.profile:
+    functions:
+      - tweetProfile
+
 dataSources:
   none:
     type: NONE
 
   usersTable:
     type: AMAZON_DYNAMODB
-    description: Message Table
+    description: Users Table
     config:
       tableName: !Ref UsersTable
+
+  tweetsTable:
+    type: AMAZON_DYNAMODB
+    description: Tweets Table
+    config:
+      tableName: !Ref TweetsTable
 
   tweet:
     type: AWS_LAMBDA

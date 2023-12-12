@@ -3,6 +3,7 @@ import {
   getMyProfile as getMyProfileRq,
   editMyProfile as editMyProfileRq,
   tweet as tweetRq,
+  getTweets as getTweetsRq,
 } from '../requests/auth';
 
 export async function getMyProfile({ token }) {
@@ -25,5 +26,15 @@ export async function tweet({ text, token }) {
   return tweetRq({
     client: client(),
     text,
+  });
+}
+
+export async function getTweets({ username, limit, nextToken, token }) {
+  setToken(token)
+  return getTweetsRq({
+    client: client(),
+    username,
+    limit,
+    nextToken,
   });
 }

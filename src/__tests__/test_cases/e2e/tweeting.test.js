@@ -1,7 +1,7 @@
-import { beforeAll, expect, describe, test } from 'vitest'
+import { beforeAll, expect, describe, test, it } from 'vitest'
 
 import { an_authenticated_user } from '../../steps/given.js'
-import {a_user_calls_tweet } from '../../steps/when.js'
+import { a_user_calls_tweet, a_user_calls_getTweets } from '../../steps/when.js'
 
 import Chance from 'chance'
 
@@ -13,7 +13,7 @@ describe('Given an authenticated user', () => {
     user = await an_authenticated_user()
   })
 
-  test('when they send a tweet', async () => {
+  describe('when they send a tweet', async () => {
     let tweet
     let text = chance.string({ length: 16 })
     beforeAll(async () => {
@@ -26,7 +26,25 @@ describe('Given an authenticated user', () => {
         replies: 0,
         likes: 0,
         retweets: 0,
-        liked: false,
+      })
+    })
+
+    describe('When getTweets is called', () => {
+      let tweets, nextToken
+      beforeAll(async () => {
+        const result = await a_user_calls_getTweets({
+          username: user.username,
+          limit: 25,
+          token: user.accessToken
+        })
+        tweets = result.tweets
+        nextToken = result.nextToken
+      })
+
+      test('should see the new tweet in the tweets array', () => {
+        expect(nextToken).toBeNull()
+        expect(tweets.length).toEqual(1)
+        expect(tweets[0]).toMatchObject(tweet)
       })
     })
   })

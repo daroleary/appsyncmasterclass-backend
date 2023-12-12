@@ -132,7 +132,7 @@ type Retweet implements ITweet {
 }
 
 type TweetsPage {
-    items: [ITweet!]
+    tweets: [ITweet!]
     nextToken: String
 }
 
