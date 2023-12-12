@@ -25,6 +25,7 @@ describe('Given an authenticated user', () => {
         text,
         replies: 0,
         likes: 0,
+        liked: false,
         retweets: 0,
       })
     })
