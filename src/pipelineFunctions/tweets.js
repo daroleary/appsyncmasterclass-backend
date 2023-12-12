@@ -1,5 +1,4 @@
 import { util } from '@aws-appsync/utils'
-import * as ddb from '@aws-appsync/utils/dynamodb'
 
 /**
  * @see https://docs.aws.amazon.com/appsync/latest/devguide/js-resolver-reference-dynamodb.html#js-aws-appsync-resolver-reference-dynamodb-query
@@ -9,7 +8,7 @@ function queryByCreator(userId, nextToken, limit) {
     util.appendError("max limit is 25")
   }
 
-  const queryRequest = {
+  return {
     operation: 'Query',
     query: {
       expression: 'creator = :userId',
@@ -22,8 +21,6 @@ function queryByCreator(userId, nextToken, limit) {
     consistentRead: false,
     select: 'ALL_ATTRIBUTES'
   };
-
-  return queryRequest;
 }
 
 export function request(ctx) {

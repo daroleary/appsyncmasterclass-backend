@@ -48,6 +48,7 @@ export const tweetMutation = gql`
             createdAt
             id
             likes
+            liked
             replies
             retweets
             text
@@ -85,6 +86,7 @@ export const getTweetsQuery = gql`
                 ... on Tweet {
                     id
                     likes
+                    liked
                     replies
                     retweets
                     text
