@@ -1,7 +1,15 @@
 import 'dotenv/config'
 import { handler as confirmUserSignupHandler } from '../../functions/confirmUserSignup'
 import { confirmUserSignUp, signUp } from '../../auth/cognito'
-import { getMyProfile, editMyProfile, tweet, getTweets } from '../../client/apollo/services/auth.js'
+import {
+  getMyProfile,
+  editMyProfile,
+  tweet,
+  getTweets,
+  like,
+  unlike,
+  getMyTimeline
+} from '../../client/apollo/services/auth.js'
 
 export const we_invoke_confirmUserSignup = async (username, name, email) => {
   const context = {}
@@ -54,3 +62,16 @@ export const a_user_calls_tweet = async ({ text, token}) => {
 export const a_user_calls_getTweets = async ({ username, limit, nextToken, token }) => {
   return await getTweets({ username, limit, nextToken, token })
 }
+
+export const a_user_calls_like = async ({ tweetId, token }) => {
+  return await like({ tweetId, token })
+}
+
+export const a_user_calls_unlike = async ({ tweetId, token }) => {
+  return await unlike({ tweetId, token })
+}
+
+export const a_user_calls_getMyTimeline = async ({ limit, nextToken, token  }) => {
+  return await getMyTimeline({ limit, nextToken, token  })
+}
+

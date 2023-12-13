@@ -12,6 +12,9 @@ logging:
   level: 'ALL'  # Set to NONE, ERROR, or ALL
   retentionInDays: 3
 
+substitutions:
+  tweetsTable: !Ref TweetsTable
+
 # see https://github.com/sid88in/serverless-appsync-plugin/blob/master/doc/pipeline-functions.md
 pipelineFunctions:
   getMyProfile:
@@ -22,15 +25,22 @@ pipelineFunctions:
     dataSource: usersTable
     code: src/pipelineFunctions/editMyProfile.js
 
+  getTweets:
+    dataSource: tweetsTable
+    code: src/pipelineFunctions/getTweets.js
+
+  getMyTimeline:
+    dataSource: timelinesTable
+    code: src/pipelineFunctions/getMyTimeline.js
+
   tweetFunction:
     dataSource: tweet
 
-  tweets:
-    dataSource: tweetsTable
-    code: src/pipelineFunctions/tweets.js
-
   likeFunction:
     dataSource: like
+
+  unlikeFunction:
+    dataSource: unlike
 
   # Nested Fields
   tweetProfile:
@@ -41,6 +51,10 @@ pipelineFunctions:
     dataSource: likesTable
     code: src/pipelineFunctions/likedProfile.js
 
+  timelinePageTweets:
+    dataSource: tweetsTable
+    code: src/pipelineFunctions/timelinePageTweets.js
+
 resolvers:
   Query.getMyProfile:
     functions:
@@ -48,7 +62,11 @@ resolvers:
 
   Query.getTweets:
     functions:
-      - tweets
+      - getTweets
+
+  Query.getMyTimeline:
+    functions:
+      - getMyTimeline
 
   Mutation.editMyProfile:
     functions:
@@ -62,6 +80,10 @@ resolvers:
     functions:
       - likeFunction
 
+  Mutation.unlike:
+    functions:
+      - unlikeFunction
+
   # Nested Fields
   Tweet.profile:
     functions:
@@ -70,6 +92,10 @@ resolvers:
   Tweet.liked:
     functions:
       - likedProfile
+
+  TimelinePage.tweets:
+    functions:
+      - timelinePageTweets
 
 dataSources:
   none:
@@ -86,6 +112,12 @@ dataSources:
     description: Tweets Table
     config:
       tableName: !Ref TweetsTable
+
+  timelinesTable:
+    type: AMAZON_DYNAMODB
+    description: Timelines Table
+    config:
+      tableName: !Ref TimelinesTable
 
   likesTable:
     type: AMAZON_DYNAMODB
@@ -143,5 +175,32 @@ dataSources:
           - Effect: Allow
             Action:
               - dynamodb:PutItem
+            Resource:
+              - !GetAtt LikesTable.Arn
+
+  unlike:
+    type: AWS_LAMBDA
+    description: update dynamoDB with changes from unlike
+    config:
+      function:
+        handler: src/pipelineFunctions/unlike.handler
+        environment:
+          LIKES_TABLE: !Ref LikesTable
+          TWEETS_TABLE: !Ref TweetsTable
+          USERS_TABLE: !Ref UsersTable
+        iamRoleStatements:
+          - Effect: Allow
+            Action:
+              - lambda:invokeFunction
+            Resource: '*'
+          - Effect: Allow
+            Action:
+              - dynamodb:UpdateItem
+            Resource:
+              - !GetAtt TweetsTable.Arn
+              - !GetAtt UsersTable.Arn
+          - Effect: Allow
+            Action:
+              - dynamodb:DeleteItem
             Resource:
               - !GetAtt LikesTable.Arn

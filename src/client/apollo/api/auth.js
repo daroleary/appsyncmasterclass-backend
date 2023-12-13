@@ -96,3 +96,55 @@ export const getTweetsQuery = gql`
         }
     }
 `;
+
+export const likeMutation = gql`
+    mutation like($tweetId: ID!) {
+        like(tweetId: $tweetId)
+    }
+`;
+
+export const unlikeMutation = gql`
+    mutation unlike($tweetId: ID!) {
+        unlike(tweetId: $tweetId)
+    }
+`;
+
+export const getMyTimelineQuery = gql`
+    query getMyTimeline($limit: Int!, $nextToken: String) {
+        getMyTimeline(limit: $limit, nextToken: $nextToken) {
+            nextToken
+            __typename
+            tweets {
+                createdAt
+                id
+                profile {
+                    id
+                    name
+                    screenName
+                    __typename
+                    ... on MyProfile {
+                        id
+                        name
+                        followersCount
+                        followingCount
+                    }
+                    ... on OtherProfile {
+                        id
+                        name
+                        followersCount
+                        followingCount
+                    }
+                }
+                ... on Tweet {
+                    id
+                    likes
+                    liked
+                    replies
+                    retweets
+                    text
+                    __typename
+                }
+            }
+        }
+    }
+`;

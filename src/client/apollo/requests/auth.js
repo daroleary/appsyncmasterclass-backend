@@ -3,6 +3,9 @@ import {
   editMyProfileMutation,
   tweetMutation,
   getTweetsQuery,
+  likeMutation,
+  unlikeMutation,
+  getMyTimelineQuery,
 } from '../api/auth'
 
 export async function getMyProfile({ client }) {
@@ -68,3 +71,52 @@ export async function tweet({ text, client }) {
       return null;
     }
   }
+
+export async function like({ tweetId, client }) {
+  try {
+    const { data } = await client.mutate({
+      mutation: likeMutation,
+      variables: {
+        tweetId,
+      },
+    });
+
+    return data.like;
+  } catch (error) {
+    console.log('Error calling graphQL API: like', error)
+    return null;
+  }
+}
+
+export async function unlike({ tweetId, client }) {
+  try {
+    const { data } = await client.mutate({
+      mutation: unlikeMutation,
+      variables: {
+        tweetId,
+      },
+    });
+
+    return data.unlike;
+  } catch (error) {
+    console.log('Error calling graphQL API: unlike', error)
+    return null;
+  }
+}
+
+export async function getMyTimeline({ limit, nextToken, client }) {
+  try {
+    const { data } = await client.query({
+      query: getMyTimelineQuery,
+      variables: {
+        limit,
+        nextToken,
+      },
+    });
+
+    return data.getMyTimeline
+  } catch (error) {
+    console.log('Error calling graphQL API: unlike', error)
+    return null;
+  }
+}

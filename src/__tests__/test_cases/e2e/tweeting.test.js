@@ -1,7 +1,12 @@
 import { beforeAll, expect, describe, test, it } from 'vitest'
 
 import { an_authenticated_user } from '../../steps/given.js'
-import { a_user_calls_tweet, a_user_calls_getTweets } from '../../steps/when.js'
+import {
+  a_user_calls_tweet,
+  a_user_calls_getTweets,
+  a_user_calls_like,
+  a_user_calls_getMyTimeline, a_user_calls_unlike
+} from '../../steps/when.js'
 
 import Chance from 'chance'
 
@@ -46,6 +51,49 @@ describe('Given an authenticated user', () => {
         expect(nextToken).toBeNull()
         expect(tweets.length).toEqual(1)
         expect(tweets[0]).toMatchObject(tweet)
+      })
+    })
+
+    describe('When getMyTimeline is called', () => {
+      let tweets, nextToken
+      beforeAll(async () => {
+        const result = await a_user_calls_getMyTimeline({limit: 25, token: user.accessToken })
+        tweets = result.tweets
+        nextToken = result.nextToken
+      })
+
+      test('should see the new tweet in the tweets array', async () => {
+        expect(nextToken).toBeNull()
+        expect(tweets.length).toEqual(1)
+        expect(tweets[0]).toMatchObject(tweet)
+      })
+    })
+
+    describe('When tweet is liked', () => {
+      let tweets, nextToken
+      beforeAll(async () => {
+        await a_user_calls_like({tweetId: tweet.id, token: user.accessToken })
+      })
+
+      test('should see the Tweet.liked as true', async () => {
+        const { tweets } = await a_user_calls_getMyTimeline({ limit: 25, token: user.accessToken })
+        expect(tweets).toHaveLength(1)
+        expect(tweets[0].id).toEqual(tweet.id)
+        expect(tweets[0].liked).toEqual(true)
+      })
+
+      // TODO: later this will move
+      describe('When tweet is unliked', () => {
+        beforeAll(async () => {
+          await a_user_calls_unlike({tweetId: tweet.id, token: user.accessToken })
+        })
+
+        test('should see the Tweet.liked as true', async () => {
+          const { tweets } = await a_user_calls_getMyTimeline({ limit: 25, token: user.accessToken })
+          expect(tweets).toHaveLength(1)
+          expect(tweets[0].id).toEqual(tweet.id)
+          expect(tweets[0].liked).toEqual(false)
+        })
       })
     })
   })
