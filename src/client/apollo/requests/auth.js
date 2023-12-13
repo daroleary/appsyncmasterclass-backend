@@ -5,7 +5,7 @@ import {
   getTweetsQuery,
   likeMutation,
   unlikeMutation,
-  getMyTimelineQuery,
+  getMyTimelineQuery, getLikesQuery
 } from '../api/auth'
 
 export async function getMyProfile({ client }) {
@@ -117,6 +117,24 @@ export async function getMyTimeline({ limit, nextToken, client }) {
     return data.getMyTimeline
   } catch (error) {
     console.log('Error calling graphQL API: unlike', error)
+    return null;
+  }
+}
+
+export async function getLikes({ userId, limit, nextToken, client }) {
+  try {
+    const { data } = await client.query({
+      query: getLikesQuery,
+      variables: {
+        userId,
+        limit,
+        nextToken,
+      },
+    });
+
+    return data.getLikes
+  } catch (error) {
+    console.log('Error calling graphQL API: getLikes', error)
     return null;
   }
 }
