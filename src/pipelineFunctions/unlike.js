@@ -43,7 +43,7 @@ export const transactItemsFrom = ({ username, tweetId }) => {
           Key: {
             id: username
           },
-          UpdateExpression: 'ADD likesCounts :one',
+          UpdateExpression: 'ADD likesCount :one',
           ExpressionAttributeValues: {
             ':one': -1
           },

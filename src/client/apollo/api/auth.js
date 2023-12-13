@@ -148,3 +148,45 @@ export const getMyTimelineQuery = gql`
         }
     }
 `;
+
+export const getLikesQuery = gql`
+    query getLikes($userId: ID!, $limit: Int!, $nextToken: String) {
+        getLikes(userId: $userId, limit: $limit, nextToken: $nextToken) {
+            nextToken
+            __typename
+            tweets {
+                createdAt
+                id
+                profile {
+                    id
+                    name
+                    screenName
+                    __typename
+                    ... on MyProfile {
+                        id
+                        name
+                        likesCount
+                        followersCount
+                        followingCount
+                    }
+                    ... on OtherProfile {
+                        id
+                        name
+                        likesCount
+                        followersCount
+                        followingCount
+                    }
+                }
+                ... on Tweet {
+                    id
+                    likes
+                    liked
+                    replies
+                    retweets
+                    text
+                    __typename
+                }
+            }
+        }
+    }
+`;

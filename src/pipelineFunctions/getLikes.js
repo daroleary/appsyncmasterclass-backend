@@ -23,7 +23,7 @@ function queryByUserId(userId, nextToken, limit) {
 }
 
 export function request(ctx) {
-  const userId = ctx.identity.username
+  const userId = ctx.arguments.userId
   const limit = ctx.arguments.limit
   const nextToken = ctx.arguments.nextToken || null
   return queryByUserId(userId, nextToken, limit)

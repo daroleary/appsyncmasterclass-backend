@@ -7,6 +7,7 @@ import {
   like as likeRq,
   unlike as unlikeRq,
   getMyTimeline as getMyTimelineRq,
+  getLikes as getLikesRq,
 } from '../requests/auth';
 import { a_user_calls_getMyTimeline } from '../../../__tests__/steps/when.js'
 
@@ -63,6 +64,16 @@ export async function getMyTimeline({ limit, nextToken, token }) {
   setToken(token)
   return getMyTimelineRq({
     client: client(),
+    limit,
+    nextToken,
+  });
+}
+
+export async function getLikes({ userId, limit, nextToken, token }) {
+  setToken(token)
+  return getLikesRq({
+    client: client(),
+    userId,
     limit,
     nextToken,
   });

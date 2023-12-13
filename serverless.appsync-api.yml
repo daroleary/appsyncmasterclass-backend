@@ -33,6 +33,10 @@ pipelineFunctions:
     dataSource: timelinesTable
     code: src/pipelineFunctions/getMyTimeline.js
 
+  getLikes:
+    dataSource: likesTable
+    code: src/pipelineFunctions/getLikes.js
+
   tweetFunction:
     dataSource: tweet
 
@@ -51,9 +55,9 @@ pipelineFunctions:
     dataSource: likesTable
     code: src/pipelineFunctions/likedProfile.js
 
-  timelinePageTweets:
+  unhydratedTweetsPage:
     dataSource: tweetsTable
-    code: src/pipelineFunctions/timelinePageTweets.js
+    code: src/pipelineFunctions/unhydratedTweetsPage.js
 
 resolvers:
   Query.getMyProfile:
@@ -67,6 +71,10 @@ resolvers:
   Query.getMyTimeline:
     functions:
       - getMyTimeline
+
+  Query.getLikes:
+    functions:
+      - getLikes
 
   Mutation.editMyProfile:
     functions:
@@ -93,9 +101,9 @@ resolvers:
     functions:
       - likedProfile
 
-  TimelinePage.tweets:
+  UnhydratedTweetsPage.tweets:
     functions:
-      - timelinePageTweets
+      - unhydratedTweetsPage
 
 dataSources:
   none:
