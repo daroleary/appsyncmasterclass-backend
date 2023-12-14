@@ -21,6 +21,14 @@ pipelineFunctions:
     dataSource: usersTable
     code: src/pipelineFunctions/getMyProfile.js
 
+  getProfile:
+    dataSource: usersTable
+    code: src/pipelineFunctions/getProfile.js
+
+  getFollowers:
+    dataSource: relationshipsTable
+    code: src/pipelineFunctions/getFollowers.js
+
   editMyProfile:
     dataSource: usersTable
     code: src/pipelineFunctions/editMyProfile.js
@@ -37,6 +45,18 @@ pipelineFunctions:
     dataSource: likesTable
     code: src/pipelineFunctions/getLikes.js
 
+  myProfileTweets:
+    dataSource: tweetsTable
+    code: src/pipelineFunctions/myProfileTweets.js
+
+  otherProfileFollowing:
+    dataSource: relationshipsTable
+    code: src/pipelineFunctions/otherProfileFollowing.js
+
+  otherProfileFollowedBy:
+    dataSource: relationshipsTable
+    code: src/pipelineFunctions/otherProfileFollowedBy.js
+
   tweetFunction:
     dataSource: tweet
 
@@ -45,6 +65,12 @@ pipelineFunctions:
 
   unlikeFunction:
     dataSource: unlike
+
+  retweetFunction:
+    dataSource: retweet
+
+  followFunction:
+    dataSource: follow
 
   # Nested Fields
   tweetProfile:
@@ -59,10 +85,22 @@ pipelineFunctions:
     dataSource: tweetsTable
     code: src/pipelineFunctions/unhydratedTweetsPage.js
 
+  tweetRetweeted:
+    dataSource: retweetsTable
+    code: src/pipelineFunctions/tweetRetweeted.js
+
+  retweetOf:
+    dataSource: tweetsTable
+    code: src/pipelineFunctions/retweetOf.js
+
 resolvers:
   Query.getMyProfile:
     functions:
       - getMyProfile
+
+  Query.getProfile:
+    functions:
+      - getProfile
 
   Query.getTweets:
     functions:
@@ -75,6 +113,10 @@ resolvers:
   Query.getLikes:
     functions:
       - getLikes
+
+  Query.getFollowers:
+    functions:
+      - getFollowers
 
   Mutation.editMyProfile:
     functions:
@@ -92,10 +134,38 @@ resolvers:
     functions:
       - unlikeFunction
 
+  Mutation.retweet:
+    functions:
+      - retweetFunction
+
+  Mutation.follow:
+    functions:
+      - followFunction
+
   # Nested Fields
   Tweet.profile:
     functions:
       - tweetProfile
+
+  Retweet.profile:
+    functions:
+      - tweetProfile
+
+  MyProfile.tweets:
+    functions:
+      - myProfileTweets
+
+  OtherProfile.tweets:
+    functions:
+      - myProfileTweets
+
+  OtherProfile.following:
+    functions:
+      - otherProfileFollowing
+
+  OtherProfile.followedBy:
+    functions:
+      - otherProfileFollowedBy
 
   Tweet.liked:
     functions:
@@ -104,6 +174,14 @@ resolvers:
   UnhydratedTweetsPage.tweets:
     functions:
       - unhydratedTweetsPage
+
+  Tweet.retweeted:
+    functions:
+      - tweetRetweeted
+
+  Retweet.retweetOf:
+    functions:
+      - retweetOf
 
 dataSources:
   none:
@@ -132,6 +210,18 @@ dataSources:
     description: Likes Table
     config:
       tableName: !Ref LikesTable
+
+  retweetsTable:
+    type: AMAZON_DYNAMODB
+    description: Retweets Table
+    config:
+      tableName: !Ref RetweetsTable
+
+  relationshipsTable:
+    type: AMAZON_DYNAMODB
+    description: Relationships Table
+    config:
+      tableName: !Ref RelationshipsTable
 
   tweet:
     type: AWS_LAMBDA
@@ -212,3 +302,62 @@ dataSources:
               - dynamodb:DeleteItem
             Resource:
               - !GetAtt LikesTable.Arn
+
+  retweet:
+    type: AWS_LAMBDA
+    description: update dynamoDB with changes from new retweet
+    config:
+      function:
+        handler: src/pipelineFunctions/retweet.handler
+        environment:
+          USERS_TABLE: !Ref UsersTable
+          TWEETS_TABLE: !Ref TweetsTable
+          TIMELINES_TABLE: !Ref TimelinesTable
+          RETWEETS_TABLE: !Ref RetweetsTable
+        iamRoleStatements:
+          - Effect: Allow
+            Action:
+              - lambda:invokeFunction
+            Resource: '*'
+          - Effect: Allow
+            Action:
+              - dynamodb:GetItem
+            Resource: !GetAtt TweetsTable.Arn
+          - Effect: Allow
+            Action:
+              - dynamodb:UpdateItem
+            Resource:
+              - !GetAtt UsersTable.Arn
+              - !GetAtt TweetsTable.Arn
+          - Effect: Allow
+            Action:
+              - dynamodb:PutItem
+            Resource:
+              - !GetAtt TweetsTable.Arn
+              - !GetAtt TimelinesTable.Arn
+              - !GetAtt RetweetsTable.Arn
+
+  follow:
+    type: AWS_LAMBDA
+    description: update dynamoDB with changes from follow
+    config:
+      function:
+        handler: src/pipelineFunctions/follow.handler
+        environment:
+          RELATIONSHIPS_TABLE: !Ref RelationshipsTable
+          USERS_TABLE: !Ref UsersTable
+        iamRoleStatements:
+          - Effect: Allow
+            Action:
+              - lambda:invokeFunction
+            Resource: '*'
+          - Effect: Allow
+            Action:
+              - dynamodb:UpdateItem
+            Resource:
+              - !GetAtt UsersTable.Arn
+          - Effect: Allow
+            Action:
+              - dynamodb:PutItem
+            Resource:
+              - !GetAtt RelationshipsTable.Arn

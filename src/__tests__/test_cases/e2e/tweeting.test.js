@@ -5,7 +5,10 @@ import {
   a_user_calls_tweet,
   a_user_calls_getTweets,
   a_user_calls_like,
-  a_user_calls_getMyTimeline, a_user_calls_unlike, a_user_calls_getLikes
+  a_user_calls_getMyTimeline,
+  a_user_calls_unlike,
+  a_user_calls_getLikes,
+  a_user_calls_retweet
 } from '../../steps/when.js'
 
 import Chance from 'chance'
@@ -13,7 +16,7 @@ import Chance from 'chance'
 const chance = new Chance()
 
 describe('Given an authenticated user', () => {
-  let user, profile
+  let user
   beforeAll(async () => {
     user = await an_authenticated_user()
   })
@@ -97,7 +100,6 @@ describe('Given an authenticated user', () => {
         })
       })
 
-      // TODO: later this will move
       describe('When tweet is unliked', () => {
         beforeAll(async () => {
           await a_user_calls_unlike({tweetId: tweet.id, token: user.accessToken })
@@ -111,11 +113,49 @@ describe('Given an authenticated user', () => {
         })
 
         test('should not see tweet when getLikes is called', async () => {
-          const result = await a_user_calls_getLikes({ userId: user.username, limit: 25, token: user.accessToken })
-          console.log(`result: ${JSON.stringify(result, null, 2)}`)
-          // TODO: handle case where tweet is not liked
-          // expect(nextToken).toBeNull()
-          // expect(tweets.length).toEqual(0)
+          const likes = await a_user_calls_getLikes({ userId: user.username, limit: 25, token: user.accessToken })
+          expect(likes.nextToken).toBeNull()
+          expect(likes.tweets.length).toEqual(0)
+        })
+      })
+
+      describe('When tweet is retweeted', () => {
+        beforeAll(async () => {
+          await a_user_calls_retweet({ tweetId: tweet.id, token: user.accessToken })
+        })
+
+        test('should see the retweet when getTweets is called', async () => {
+          const { tweets } = await a_user_calls_getTweets({
+            username: user.username,
+            limit: 25,
+            token: user.accessToken
+          })
+
+          expect(tweets).toHaveLength(2)
+          expect(tweets[0].profile).toMatchObject({
+            id: user.username,
+            tweetsCount: 2
+          })
+
+          expect(tweets[0].retweetOf).toMatchObject({
+            retweets: 1,
+            retweeted: true,
+          })
+
+          expect(tweets[0].retweetOf.profile).toMatchObject({
+            id: user.username,
+            tweetsCount: 2
+          })
+
+          expect(tweets[1]).toMatchObject({
+            retweets: 1,
+            retweeted: true,
+          })
+
+          expect(tweets[1].profile).toMatchObject({
+            id: user.username,
+            tweetsCount: 2
+          })
         })
       })
     })

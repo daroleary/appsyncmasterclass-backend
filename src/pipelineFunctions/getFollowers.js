@@ -11,9 +11,10 @@ function queryByUserId(userId, nextToken, limit) {
   return {
     operation: 'Query',
     query: {
-      expression: 'userId = :userId',
-      expressionValues: util.dynamodb.toMapValues({ ':userId': userId }),
+      expression: 'otherUserId = :userId AND begins_with(sk, :follows)',
+      expressionValues: util.dynamodb.toMapValues({ ':userId': userId, ':follows': 'FOLLOWS_' }),
     },
+    index: 'byOtherUser',
     nextToken: nextToken,
     limit: limit,
     scanIndexForward: false,
