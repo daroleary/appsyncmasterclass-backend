@@ -1,6 +1,7 @@
 import { client, setToken } from '../../../storage/apollo';
 import {
   getMyProfile as getMyProfileRq,
+  getProfile as getProfileRq,
   editMyProfile as editMyProfileRq,
   tweet as tweetRq,
   getTweets as getTweetsRq,
@@ -9,6 +10,8 @@ import {
   getMyTimeline as getMyTimelineRq,
   getLikes as getLikesRq,
   retweet as retweetRq,
+  follow as followRq,
+  getFollowers as getFollowersRq,
 } from '../requests/auth';
 import { a_user_calls_getMyTimeline } from '../../../__tests__/steps/when.js'
 
@@ -16,6 +19,14 @@ export async function getMyProfile({ token }) {
   setToken(token)
   return getMyProfileRq({
     client: client(),
+  });
+}
+
+export async function getProfile({ screenName, token }) {
+  setToken(token)
+  return getProfileRq({
+    client: client(),
+    screenName,
   });
 }
 
@@ -85,5 +96,23 @@ export async function retweet({ tweetId, token }) {
   return retweetRq({
     client: client(),
     tweetId,
+  });
+}
+
+export async function follow({ userId, token }) {
+  setToken(token)
+  return followRq({
+    client: client(),
+    userId,
+  });
+}
+
+export async function getFollowers({ userId, limit, nextToken, token }) {
+  setToken(token)
+  return getFollowersRq({
+    client: client(),
+    userId,
+    limit,
+    nextToken,
   });
 }

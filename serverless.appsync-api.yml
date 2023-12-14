@@ -25,6 +25,10 @@ pipelineFunctions:
     dataSource: usersTable
     code: src/pipelineFunctions/getProfile.js
 
+  getFollowers:
+    dataSource: relationshipsTable
+    code: src/pipelineFunctions/getFollowers.js
+
   editMyProfile:
     dataSource: usersTable
     code: src/pipelineFunctions/editMyProfile.js
@@ -109,6 +113,10 @@ resolvers:
   Query.getLikes:
     functions:
       - getLikes
+
+  Query.getFollowers:
+    functions:
+      - getFollowers
 
   Mutation.editMyProfile:
     functions:

@@ -5,7 +5,7 @@ import {
   getTweetsQuery,
   likeMutation,
   unlikeMutation,
-  getMyTimelineQuery, getLikesQuery, retweetMutation
+  getMyTimelineQuery, getLikesQuery, retweetMutation, followMutation, getProfileQuery, getFollowersQuery
 } from '../api/auth'
 
 export async function getMyProfile({ client }) {
@@ -18,6 +18,22 @@ export async function getMyProfile({ client }) {
     return data.getMyProfile;
   } catch (error) {
     console.log('Error calling graphQL API: getMyProfile ', error)
+    return null;
+  }
+}
+
+export async function getProfile({ screenName, client }) {
+  try {
+    const { data } = await client.query({
+      query: getProfileQuery,
+      variables: {
+        screenName,
+      },
+    });
+
+    return data.getProfile;
+  } catch (error) {
+    console.log('Error calling graphQL API: getProfile ', error)
     return null;
   }
 }
@@ -151,6 +167,42 @@ export async function retweet({ tweetId, client }) {
     return data.retweet;
   } catch (error) {
     console.log('Error calling graphQL API: retweet', error)
+    return null;
+  }
+}
+
+export async function follow({ userId, client }) {
+  try {
+    const { data } = await client.mutate({
+      mutation: followMutation,
+      variables: {
+        userId,
+      },
+    });
+
+    return data.follow;
+  } catch (error) {
+    console.log('Error calling graphQL API: follow ', error)
+    return null;
+  }
+}
+
+export async function getFollowers({ userId, limit, nextToken, client }) {
+  try {
+    const { data } = await client.query({
+      query: getFollowersQuery,
+      variables: {
+        userId,
+        limit,
+        nextToken,
+      },
+    });
+
+    console.log('data: ', data);
+
+    return data.getFollowers
+  } catch (error) {
+    console.log('Error calling graphQL API: getFollowers', error)
     return null;
   }
 }

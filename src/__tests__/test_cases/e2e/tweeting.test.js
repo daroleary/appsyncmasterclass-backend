@@ -5,7 +5,10 @@ import {
   a_user_calls_tweet,
   a_user_calls_getTweets,
   a_user_calls_like,
-  a_user_calls_getMyTimeline, a_user_calls_unlike, a_user_calls_getLikes, a_user_calls_retweet
+  a_user_calls_getMyTimeline,
+  a_user_calls_unlike,
+  a_user_calls_getLikes,
+  a_user_calls_retweet
 } from '../../steps/when.js'
 
 import Chance from 'chance'

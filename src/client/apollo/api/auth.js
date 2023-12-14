@@ -1,4 +1,5 @@
 import { gql } from 'graphql-tag';
+import { getFollowers } from '../services/auth.js'
 
 export const getMyProfileQuery = gql`
     query getMyProfile {
@@ -12,6 +13,39 @@ export const getMyProfileQuery = gql`
             website
             imageUrl
             backgroundImageUrl
+            followingCount
+            followersCount
+            likesCount
+            tweetsCount
+            tweets {
+                nextToken
+                tweets {
+                    ... on Tweet {
+                        id
+                        likes
+                        text
+                    }
+                }
+            }
+            createdAt
+        }
+    }
+`;
+
+export const getProfileQuery = gql`
+    query getProfile($screenName: String!) {
+        getProfile(screenName: $screenName) {
+            id
+            screenName
+            location
+            name
+            birthdate
+            bio
+            website
+            imageUrl
+            backgroundImageUrl
+            following
+            followedBy
             followingCount
             followersCount
             likesCount
@@ -247,5 +281,40 @@ export const getLikesQuery = gql`
 export const retweetMutation = gql`
     mutation retweet($tweetId: ID!) {
         retweet(tweetId: $tweetId)
+    }
+`;
+
+export const followMutation = gql`
+    mutation follow($userId: ID!) {
+        follow(userId: $userId)
+    }
+`;
+
+export const getFollowersQuery = gql`
+    query getFollowers($userId: ID!, $limit: Int!, $nextToken: String) {
+        getFollowers(userId: $userId, limit: $limit, nextToken: $nextToken) {
+            nextToken
+            __typename
+            profiles {
+                id
+                name
+                screenName
+                __typename
+                ... on MyProfile {
+                    id
+                    name
+                    likesCount
+                    followersCount
+                    followingCount
+                }
+                ... on OtherProfile {
+                    id
+                    name
+                    likesCount
+                    followersCount
+                    followingCount
+                }
+            }
+        }
     }
 `;
