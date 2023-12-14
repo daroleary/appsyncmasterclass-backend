@@ -16,6 +16,16 @@ export const getMyProfileQuery = gql`
             followersCount
             likesCount
             tweetsCount
+            tweets {
+                nextToken
+                tweets {
+                    ... on Tweet {
+                        id
+                        likes
+                        text
+                    }
+                }
+            }
             createdAt
         }
     }
@@ -37,6 +47,16 @@ export const editMyProfileMutation = gql`
             followersCount
             likesCount
             tweetsCount
+            tweets {
+                nextToken
+                tweets {
+                    ... on Tweet {
+                        id
+                        likes
+                        text
+                    }
+                }
+            }
             createdAt
         }
     }
@@ -51,6 +71,7 @@ export const tweetMutation = gql`
             liked
             replies
             retweets
+            retweeted
             text
             createdAt
         }
@@ -73,12 +94,14 @@ export const getTweetsQuery = gql`
                     ... on MyProfile {
                         id
                         name
+                        tweetsCount
                         followersCount
                         followingCount
                     }
                     ... on OtherProfile {
                         id
                         name
+                        tweetsCount
                         followersCount
                         followingCount
                     }
@@ -89,8 +112,36 @@ export const getTweetsQuery = gql`
                     liked
                     replies
                     retweets
+                    retweeted
                     text
                     __typename
+                }
+                ... on Retweet {
+                    id
+                    createdAt
+                    profile {
+                        id
+                        name
+                        screenName
+                    }
+                    retweetOf {
+                        profile {
+                            id
+                            name
+                            screenName
+                            tweetsCount
+                        }
+                        ... on Tweet {
+                            id
+                            likes
+                            liked
+                            replies
+                            retweets
+                            retweeted
+                            text
+                            __typename
+                        }
+                    }
                 }
             }
         }
@@ -141,6 +192,7 @@ export const getMyTimelineQuery = gql`
                     liked
                     replies
                     retweets
+                    retweeted
                     text
                     __typename
                 }
@@ -183,10 +235,17 @@ export const getLikesQuery = gql`
                     liked
                     replies
                     retweets
+                    retweeted
                     text
                     __typename
                 }
             }
         }
+    }
+`;
+
+export const retweetMutation = gql`
+    mutation retweet($tweetId: ID!) {
+        retweet(tweetId: $tweetId)
     }
 `;

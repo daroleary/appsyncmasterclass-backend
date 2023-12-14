@@ -9,7 +9,8 @@ import {
   like,
   unlike,
   getMyTimeline,
-  getLikes
+  getLikes,
+  retweet
 } from '../../client/apollo/services/auth.js'
 
 export const we_invoke_confirmUserSignup = async (username, name, email) => {
@@ -68,6 +69,7 @@ export const a_user_calls_like = async ({ tweetId, token }) => {
   return await like({ tweetId, token })
 }
 
+
 export const a_user_calls_unlike = async ({ tweetId, token }) => {
   return await unlike({ tweetId, token })
 }
@@ -80,3 +82,6 @@ export const a_user_calls_getLikes = async ({ userId, limit, nextToken, token  }
   return await getLikes({ userId, limit, nextToken, token  })
 }
 
+export const a_user_calls_retweet = async ({ tweetId, token }) => {
+  return await retweet({ tweetId, token })
+}

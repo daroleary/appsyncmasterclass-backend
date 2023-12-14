@@ -51,8 +51,6 @@ export const handler = async (event) => {
   const { username } = event.identity
   const { tweetId } = event.arguments
   const transactItems = transactItemsFrom({ username, tweetId })
-  console.log(`process.env: ${JSON.stringify(process.env, null, 2)}`)
-  console.log(`transactItems: ${JSON.stringify(transactItems, null, 2)}`)
   await dynamoDB.transactWrite(transactItems);
 
   return true

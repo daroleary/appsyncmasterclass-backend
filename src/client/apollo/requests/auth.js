@@ -5,7 +5,7 @@ import {
   getTweetsQuery,
   likeMutation,
   unlikeMutation,
-  getMyTimelineQuery, getLikesQuery
+  getMyTimelineQuery, getLikesQuery, retweetMutation
 } from '../api/auth'
 
 export async function getMyProfile({ client }) {
@@ -135,6 +135,22 @@ export async function getLikes({ userId, limit, nextToken, client }) {
     return data.getLikes
   } catch (error) {
     console.log('Error calling graphQL API: getLikes', error)
+    return null;
+  }
+}
+
+export async function retweet({ tweetId, client }) {
+  try {
+    const { data } = await client.mutate({
+      mutation: retweetMutation,
+      variables: {
+        tweetId,
+      },
+    });
+
+    return data.retweet;
+  } catch (error) {
+    console.log('Error calling graphQL API: retweet', error)
     return null;
   }
 }

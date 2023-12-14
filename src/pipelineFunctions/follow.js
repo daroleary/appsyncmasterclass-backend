@@ -8,6 +8,7 @@ const { RELATIONSHIPS_TABLE, USERS_TABLE } = process.env
 export const transactItemsFrom = ({ username, userId }) => {
   // TODO: need to understand why util.time is undefined
   // console.log(`createdAt: ${JSON.stringify(util.time.nowISO8601(), null, 2)}`)
+  // maybe try using new Date().toJSON() for now?
 
   const sk = `FOLLOWS_${userId}`
 

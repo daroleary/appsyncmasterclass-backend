@@ -32,6 +32,6 @@ export function request(ctx) {
 export const response = (ctx) => {
   return {
     tweets: ctx.result.items,
-    nextToken: ctx.result.nextToken
+    nextToken: ctx.result.nextToken || null
   }
 }

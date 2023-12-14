@@ -8,6 +8,7 @@ import {
   unlike as unlikeRq,
   getMyTimeline as getMyTimelineRq,
   getLikes as getLikesRq,
+  retweet as retweetRq,
 } from '../requests/auth';
 import { a_user_calls_getMyTimeline } from '../../../__tests__/steps/when.js'
 
@@ -76,5 +77,13 @@ export async function getLikes({ userId, limit, nextToken, token }) {
     userId,
     limit,
     nextToken,
+  });
+}
+
+export async function retweet({ tweetId, token }) {
+  setToken(token)
+  return retweetRq({
+    client: client(),
+    tweetId,
   });
 }

@@ -13,7 +13,7 @@ describe('Given an authenticated user', () => {
     user = await an_authenticated_user()
   })
 
-  test('The user can fetch his profile with getMyProfile', async () => {
+  test('The user can fetch their profile with getMyProfile', async () => {
     profile = await a_user_calls_getMyProfile({ token: user.accessToken })
 
     expect(profile).toMatchObject({
@@ -30,6 +30,10 @@ describe('Given an authenticated user', () => {
       followingCount: 0,
       tweetsCount: 0,
       likesCount: 0,
+      tweets: {
+        nextToken: null,
+        tweets: []
+      },
     })
 
     const [firstName, lastName] = profile.name.split(' ')
