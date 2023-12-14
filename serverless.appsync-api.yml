@@ -21,6 +21,10 @@ pipelineFunctions:
     dataSource: usersTable
     code: src/pipelineFunctions/getMyProfile.js
 
+  getProfile:
+    dataSource: usersTable
+    code: src/pipelineFunctions/getProfile.js
+
   editMyProfile:
     dataSource: usersTable
     code: src/pipelineFunctions/editMyProfile.js
@@ -37,6 +41,18 @@ pipelineFunctions:
     dataSource: likesTable
     code: src/pipelineFunctions/getLikes.js
 
+  myProfileTweets:
+    dataSource: tweetsTable
+    code: src/pipelineFunctions/myProfileTweets.js
+
+  otherProfileFollowing:
+    dataSource: relationshipsTable
+    code: src/pipelineFunctions/otherProfileFollowing.js
+
+  otherProfileFollowedBy:
+    dataSource: relationshipsTable
+    code: src/pipelineFunctions/otherProfileFollowedBy.js
+
   tweetFunction:
     dataSource: tweet
 
@@ -45,6 +61,9 @@ pipelineFunctions:
 
   unlikeFunction:
     dataSource: unlike
+
+  followFunction:
+    dataSource: follow
 
   # Nested Fields
   tweetProfile:
@@ -63,6 +82,10 @@ resolvers:
   Query.getMyProfile:
     functions:
       - getMyProfile
+
+  Query.getProfile:
+    functions:
+      - getProfile
 
   Query.getTweets:
     functions:
@@ -92,10 +115,26 @@ resolvers:
     functions:
       - unlikeFunction
 
+  Mutation.follow:
+    functions:
+      - followFunction
+
   # Nested Fields
   Tweet.profile:
     functions:
       - tweetProfile
+
+  MyProfile.tweets:
+    functions:
+      - myProfileTweets
+
+  OtherProfile.following:
+    functions:
+      - otherProfileFollowing
+
+  OtherProfile.followedBy:
+    functions:
+      - otherProfileFollowedBy
 
   Tweet.liked:
     functions:
@@ -132,6 +171,12 @@ dataSources:
     description: Likes Table
     config:
       tableName: !Ref LikesTable
+
+  relationshipsTable:
+    type: AMAZON_DYNAMODB
+    description: Relationships Table
+    config:
+      tableName: !Ref RelationshipsTable
 
   tweet:
     type: AWS_LAMBDA
@@ -212,3 +257,28 @@ dataSources:
               - dynamodb:DeleteItem
             Resource:
               - !GetAtt LikesTable.Arn
+
+  follow:
+    type: AWS_LAMBDA
+    description: update dynamoDB with changes from follow
+    config:
+      function:
+        handler: src/pipelineFunctions/follow.handler
+        environment:
+          RELATIONSHIPS_TABLE: !Ref RelationshipsTable
+          USERS_TABLE: !Ref UsersTable
+        iamRoleStatements:
+          - Effect: Allow
+            Action:
+              - lambda:invokeFunction
+            Resource: '*'
+          - Effect: Allow
+            Action:
+              - dynamodb:UpdateItem
+            Resource:
+              - !GetAtt UsersTable.Arn
+          - Effect: Allow
+            Action:
+              - dynamodb:PutItem
+            Resource:
+              - !GetAtt RelationshipsTable.Arn
