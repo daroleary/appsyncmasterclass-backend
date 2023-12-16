@@ -6,6 +6,8 @@ authentication:
     userPoolId: !Ref CognitoUserPool
     awsRegion: ${aws:region}
     defaultAction: ALLOW
+  additionalAuthentications:
+    - type: AWS_IAM
 
 logging:
   roleArn: { 'Fn::GetAtt': [ 'AppSyncCloudWatchLogsRole', 'Arn' ] }
@@ -24,6 +26,10 @@ pipelineFunctions:
   getProfile:
     dataSource: usersTable
     code: src/pipelineFunctions/getProfile.js
+
+  getTweet:
+    dataSource: usersTable
+    code: src/pipelineFunctions/getTweet.js
 
   getFollowers:
     dataSource: relationshipsTable
@@ -72,6 +78,10 @@ pipelineFunctions:
   followFunction:
     dataSource: follow
 
+  notifyRetweeted:
+    dataSource: notificationsTable
+    code: src/pipelineFunctions/notifyRetweeted.js
+
   # Nested Fields
   tweetProfile:
     dataSource: usersTable
@@ -93,6 +103,11 @@ pipelineFunctions:
     dataSource: tweetsTable
     code: src/pipelineFunctions/retweetOf.js
 
+  # Subscriptions
+#  onNotifiedSubscription:
+#    dataSource: none
+#    code: src/pipelineFunctions/subscription/onNotification.js
+
 resolvers:
   Query.getMyProfile:
     functions:
@@ -101,6 +116,10 @@ resolvers:
   Query.getProfile:
     functions:
       - getProfile
+
+  Query.getTweet:
+    functions:
+      - getTweet
 
   Query.getTweets:
     functions:
@@ -141,6 +160,10 @@ resolvers:
   Mutation.follow:
     functions:
       - followFunction
+
+  Mutation.notifyRetweeted:
+    functions:
+      - notifyRetweeted
 
   # Nested Fields
   Tweet.profile:
@@ -183,6 +206,23 @@ resolvers:
     functions:
       - retweetOf
 
+  # Subscriptions
+#  Subscription.onNotified:
+#    functions:
+#      - onNotifiedSubscription
+
+  Subscription.onNotified:
+    functions:
+      - dataSource: none
+        request: src/resolvers/Subscription.onNotified.request.vtl
+        response: src/resolvers/Subscription.onNotified.response.vtl
+
+#  Subscription.onRetweeted:
+#    functions:
+#      - dataSource: none
+#        request: src/resolvers/Subscription.onRetweeted.request.vtl
+#        response: src/resolvers/Subscription.onRetweeted.response.vtl
+
 dataSources:
   none:
     type: NONE
@@ -222,6 +262,12 @@ dataSources:
     description: Relationships Table
     config:
       tableName: !Ref RelationshipsTable
+
+  notificationsTable:
+    type: AMAZON_DYNAMODB
+    description: Notifications Table
+    config:
+      tableName: !Ref NotificationsTable
 
   tweet:
     type: AWS_LAMBDA

@@ -8,10 +8,13 @@ import {
   a_user_calls_getMyTimeline,
   a_user_calls_unlike,
   a_user_calls_getLikes,
-  a_user_calls_retweet
+  a_user_calls_retweet,
+  a_user_calls_getTweet,
+  a_user_calls_notifyRetweeted,
 } from '../../steps/when.js'
 
 import Chance from 'chance'
+import { notifyRetweeted } from '../../../client/apollo/services/auth.js'
 
 const chance = new Chance()
 
@@ -26,6 +29,18 @@ describe('Given an authenticated user', () => {
     let text = chance.string({ length: 16 })
     beforeAll(async () => {
       tweet = await a_user_calls_tweet({ text, token: user.accessToken })
+    })
+
+    test('Should return the new tweet from call to getTweet', async () => {
+      await a_user_calls_getTweet({ tweetId: tweet.id, token: user.accessToken })
+
+      expect(tweet).toMatchObject({
+        text,
+        replies: 0,
+        likes: 0,
+        liked: false,
+        retweets: 0,
+      })
     })
 
     test('Should return the new tweet', () => {
@@ -120,8 +135,9 @@ describe('Given an authenticated user', () => {
       })
 
       describe('When tweet is retweeted', () => {
+        let retweet
         beforeAll(async () => {
-          await a_user_calls_retweet({ tweetId: tweet.id, token: user.accessToken })
+          retweet = await a_user_calls_retweet({ tweetId: tweet.id, token: user.accessToken })
         })
 
         test('should see the retweet when getTweets is called', async () => {

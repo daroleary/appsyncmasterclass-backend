@@ -27,8 +27,6 @@ export const handler = async (event) => {
 
   const tweet = await tweetFrom({ id, username, text, timestamp })
 
-  console.log(`Saving tweet: ${JSON.stringify(tweet, null, 2)}`)
-
   await dynamoDB.transactWrite({
     TransactItems: [
       {

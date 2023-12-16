@@ -1,5 +1,4 @@
 import { gql } from 'graphql-tag';
-import { getFollowers } from '../services/auth.js'
 
 export const getMyProfileQuery = gql`
     query getMyProfile {
@@ -108,6 +107,72 @@ export const tweetMutation = gql`
             retweeted
             text
             createdAt
+        }
+    }
+`;
+
+export const getTweetQuery = gql`
+    query getTweet($tweetId: ID!) {
+        getTweet(tweetId: $tweetId) {
+            createdAt
+            id
+            profile {
+                id
+                name
+                screenName
+                __typename
+                ... on MyProfile {
+                    id
+                    name
+                    tweetsCount
+                    followersCount
+                    followingCount
+                }
+                ... on OtherProfile {
+                    id
+                    name
+                    tweetsCount
+                    followersCount
+                    followingCount
+                }
+            }
+            ... on Tweet {
+                id
+                likes
+                liked
+                replies
+                retweets
+                retweeted
+                text
+                __typename
+            }
+            ... on Retweet {
+                id
+                createdAt
+                profile {
+                    id
+                    name
+                    screenName
+                }
+                retweetOf {
+                    profile {
+                        id
+                        name
+                        screenName
+                        tweetsCount
+                    }
+                    ... on Tweet {
+                        id
+                        likes
+                        liked
+                        replies
+                        retweets
+                        retweeted
+                        text
+                        __typename
+                    }
+                }
+            }        
         }
     }
 `;
@@ -280,7 +345,33 @@ export const getLikesQuery = gql`
 
 export const retweetMutation = gql`
     mutation retweet($tweetId: ID!) {
-        retweet(tweetId: $tweetId)
+        retweet(tweetId: $tweetId) {
+            createdAt
+            id
+            profile {
+                id
+                name
+                screenName
+            }
+            retweetOf {
+                profile {
+                    id
+                    name
+                    screenName
+                    tweetsCount
+                }
+                ... on Tweet {
+                    id
+                    likes
+                    liked
+                    replies
+                    retweets
+                    retweeted
+                    text
+#                    __typename
+                }
+            }
+        }
     }
 `;
 
@@ -314,6 +405,35 @@ export const getFollowersQuery = gql`
                     followersCount
                     followingCount
                 }
+            }
+        }
+    }
+`;
+
+export const notifyRetweetedMutation = gql`
+    mutation notifyRetweeted(
+        $id: ID!
+        $userId: ID!
+        $tweetId: ID!
+        $retweetedBy: ID!
+        $retweetId: ID!
+    ) {
+        notifyRetweeted(
+            id: $id
+            userId: $userId
+            tweetId: $tweetId
+            retweetedBy: $retweetedBy
+            retweetId: $retweetId
+        ) {
+            __typename
+            ... on Retweeted {
+                id
+                type
+                userId
+                tweetId
+                retweetedBy
+                retweetId
+                createdAt
             }
         }
     }

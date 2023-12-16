@@ -1,9 +1,10 @@
-import { client, setToken } from '../../../storage/apollo';
+import { client, iamClient, setToken } from '../../../storage/apollo';
 import {
   getMyProfile as getMyProfileRq,
   getProfile as getProfileRq,
   editMyProfile as editMyProfileRq,
   tweet as tweetRq,
+  getTweet as getTweetRq,
   getTweets as getTweetsRq,
   like as likeRq,
   unlike as unlikeRq,
@@ -12,8 +13,9 @@ import {
   retweet as retweetRq,
   follow as followRq,
   getFollowers as getFollowersRq,
+  notifyRetweeted as notifyRetweetedRq,
 } from '../requests/auth';
-import { a_user_calls_getMyTimeline } from '../../../__tests__/steps/when.js'
+
 
 export async function getMyProfile({ token }) {
   setToken(token)
@@ -43,6 +45,14 @@ export async function tweet({ text, token }) {
   return tweetRq({
     client: client(),
     text,
+  });
+}
+
+export async function getTweet({ tweetId, token }) {
+  setToken(token)
+  return getTweetRq({
+    client: client(),
+    tweetId,
   });
 }
 
@@ -114,5 +124,26 @@ export async function getFollowers({ userId, limit, nextToken, token }) {
     userId,
     limit,
     nextToken,
+  });
+}
+
+export async function notifyRetweeted({ userId, tweetId, retweetId, retweetedBy, token }) {
+  setToken(token)
+  return notifyRetweetedRq({
+    client: client(),
+    userId,
+    tweetId,
+    retweetId,
+    retweetedBy,
+  });
+}
+
+export async function notifyRetweetedByIam({ userId, tweetId, retweetId, retweetedBy, token }) {
+  return notifyRetweetedRq({
+    client: await iamClient(),
+    userId,
+    tweetId,
+    retweetId,
+    retweetedBy,
   });
 }

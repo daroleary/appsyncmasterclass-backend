@@ -6,6 +6,7 @@ import {
   getProfile,
   editMyProfile,
   tweet,
+  getTweet,
   getTweets,
   like,
   unlike,
@@ -14,6 +15,7 @@ import {
   retweet,
   follow,
   getFollowers,
+  notifyRetweeted,
 } from '../../client/apollo/services/auth.js'
 
 export const we_invoke_confirmUserSignup = async (username, name, email) => {
@@ -68,6 +70,10 @@ export const a_user_calls_tweet = async ({ text, token}) => {
   return await tweet({ text, token })
 }
 
+export const a_user_calls_getTweet = async ({ tweetId, token }) => {
+  return await getTweet({ tweetId, token })
+}
+
 export const a_user_calls_getTweets = async ({ username, limit, nextToken, token }) => {
   return await getTweets({ username, limit, nextToken, token })
 }
@@ -93,10 +99,15 @@ export const a_user_calls_retweet = async ({ tweetId, token }) => {
   return await retweet({ tweetId, token })
 }
 
+
 export const a_user_calls_follow = async ({ userId, token }) => {
   return await follow({ userId, token })
 }
 
 export const a_user_calls_getFollowers = async ({ userId, limit, nextToken, token }) => {
   return await getFollowers({ userId, limit, nextToken, token })
+}
+
+export const a_user_calls_notifyRetweeted = async ({ userId, tweetId, retweetId, retweetedBy, token }) => {
+  return await notifyRetweeted({ userId, tweetId, retweetId, retweetedBy, token })
 }
