@@ -1,6 +1,7 @@
 schema {
     query: Query
     mutation: Mutation
+    subscription: Subscription
 }
 
 type Query {
@@ -8,6 +9,7 @@ type Query {
     getMyTimeline(limit: Int!, nextToken: String): UnhydratedTweetsPage!
     getMyProfile: MyProfile!
     getProfile(screenName: String!): OtherProfile
+    getTweet(tweetId: ID!): ITweet
     getTweets(userId: ID!, limit: Int!, nextToken: String): TweetsPage!
     getLikes(userId: ID!, limit: Int!, nextToken: String): UnhydratedTweetsPage!
     getFollowers(userId: ID!, limit: Int!, nextToken: String): [ProfilesPage!]
@@ -19,11 +21,33 @@ type Mutation {
     tweet(text: String!): Tweet!
     like(tweetId: ID!): Boolean!
     unlike(tweetId: ID!): Boolean!
-    retweet(tweetId: ID!): Boolean!
+    retweet(tweetId: ID!): Retweet!
     unretweet(tweetId: ID!): Boolean!
     reply(tweetId: ID!, text: String!): Reply!
     follow(userId: ID!): Boolean!
     unfollow(userId: ID!): Boolean!
+
+    notifyRetweeted(
+        id: ID!
+        userId: ID!
+        tweetId: ID!
+        retweetedBy: ID!
+        retweetId: ID!
+    ): Notification!
+    @aws_iam
+
+    notifyLiked(
+        id: ID!
+        userId: ID!
+        tweetId: ID!
+        likedBy: ID!
+    ): Notification!
+    @aws_iam
+}
+
+type Subscription {
+    onNotified(userId: ID!, type: NotificationType): Notification
+    @aws_subscribe(mutations: ["notifyRetweeted", "notifyLiked"])
 }
 
 input ProfileInput {
@@ -144,4 +168,39 @@ type UnhydratedTweetsPage {
 type ProfilesPage {
     profiles: [IProfile!]
     nextToken: String
+}
+
+type Retweeted implements iNotification @aws_iam @aws_cognito_user_pools {
+    id: ID!
+    type: NotificationType!
+    userId: ID!
+    tweetId: ID!
+    retweetedBy: ID!
+    retweetId: ID!
+    createdAt: AWSDateTime!
+}
+
+type Liked implements iNotification @aws_iam @aws_cognito_user_pools {
+    id: ID!
+    type: NotificationType!
+    userId: ID!
+    tweetId: ID!
+    likedBy: ID!
+    createdAt: AWSDateTime!
+}
+
+union Notification = Retweeted | Liked
+
+interface iNotification {
+    id: ID!
+    type: NotificationType!
+    userId: ID!
+    createdAt: AWSDateTime!
+}
+
+enum NotificationType {
+    Retweeted
+    Liked
+    Mentioned
+    Replied
 }

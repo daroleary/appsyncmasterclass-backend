@@ -1,8 +1,9 @@
 /* eslint-disable @aws-appsync/no-async */
 /* eslint-disable @aws-appsync/no-await */
-import dynamoDB from '../storage/dynamo/index.js'
+import dynamoDB from '../storage/dynamo/index'
 import ulid from 'ulid'
-import { TweetTypes } from '../lib/constants.js'
+import { TweetTypes } from '../lib/constants'
+import { getTweetById } from '../lib/tweets'
 
 const { USERS_TABLE, TIMELINES_TABLE, TWEETS_TABLE, RETWEETS_TABLE } = process.env
 
@@ -22,18 +23,8 @@ export const handler = async (event) => {
   const id = ulid.ulid()
   const timestamp = new Date().toJSON()
 
-  const originalTweet  = (await dynamoDB.get({
-    TableName: TWEETS_TABLE,
-    Key: {
-      id: tweetId
-    }
-  })).Item
-
-  console.log(`originalTweet: ${JSON.stringify(originalTweet, null, 2)}`)
-
+  const originalTweet  = await getTweetById({ tweetId })
   const retweet = await retweetFrom({ id, username, tweetId: originalTweet.id, timestamp })
-
-  console.log(`Saving retweet: ${JSON.stringify(retweet, null, 2)}`)
 
   const transactItems = [
     {
@@ -95,11 +86,9 @@ export const handler = async (event) => {
     })
   }
 
-  console.log(`transactItems: ${JSON.stringify(transactItems, null, 2)}`)
-
   await dynamoDB.transactWrite({
     TransactItems: transactItems
   })
 
-  return true
+  return retweet
 }

@@ -31,9 +31,10 @@ provider:
     NODE_OPTIONS: --dns-result-order=ipv4first
     AWS_NODEJS_CONNECTION_REUSE_ENABLED: 1
     STAGE: ${self:custom.stage}
-    APPSYNC_ENDPOINT_URL: https://s6wq7i6rn5evnduqxau3ync5aa.appsync-api.us-east-1.amazonaws.com/graphql
-    COGNITO_USER_POOL_ID: us-east-1_3SAHiArxC
-    COGNITO_USER_POOL_CLIENT_ID: 58ocba4hqera867etecf72s5av
+    APPSYNC_API_ID: 7vydjynjynhtpf7md5wgkphjky
+    APPSYNC_ENDPOINT_URL: https://utnk5p3dmzhybiqk5iiovual7u.appsync-api.us-east-1.amazonaws.com/graphql
+    COGNITO_USER_POOL_ID: us-east-1_uToC86R3E
+    COGNITO_USER_POOL_CLIENT_ID: vlnpitlelt7h6rk0ksk52g7rq
 
 package:
   exclude:
@@ -65,6 +66,25 @@ functions:
           - cognito-idp:AdminUpdateUserAttributes
         Resource:
           Fn::Sub: "arn:aws:cognito-idp:${AWS::Region}:${AWS::AccountId}:userpool/${self:provider.environment.COGNITO_USER_POOL_ID}"
+
+  notify:
+    handler: src/functions/notify.handler
+    environment:
+      GRAPHQL_API_URL: !GetAtt GraphQlApi.GraphQLUrl
+      TWEETS_TABLE: !Ref TweetsTable
+    events:
+      - stream:
+          type: dynamodb
+          arn: !GetAtt TweetsTable.StreamArn
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - appsync:GraphQL
+        Resource:
+          Fn::Sub: "arn:aws:appsync:${AWS::Region}:${AWS::AccountId}:apis/${self:provider.environment.APPSYNC_API_ID}/*"
+      - Effect: Allow
+        Action: dynamodb:GetItem
+        Resource: !GetAtt TweetsTable.Arn
 
 resources:
   Resources:
@@ -116,6 +136,8 @@ resources:
                 KeyType: RANGE
             Projection:
               ProjectionType: ALL
+        StreamSpecification:
+          StreamViewType: NEW_AND_OLD_IMAGES
         Tags:
           - Key: Environment
             Value: ${self:custom.stage}
@@ -215,6 +237,35 @@ resources:
           - Key: Name
             Value: relationships-table
 
+    NotificationsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        BillingMode: PAY_PER_REQUEST
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+          - AttributeName: userId
+            KeyType: RANGE
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+          - AttributeName: userId
+            AttributeType: S
+        GlobalSecondaryIndexes:
+          - IndexName: byUserId
+            KeySchema:
+              - AttributeName: userId
+                KeyType: HASH
+              - AttributeName: id
+                KeyType: RANGE
+            Projection:
+              ProjectionType: ALL
+        Tags:
+          - Key: Environment
+            Value: ${self:custom.stage}
+          - Key: Name
+            Value: notifications-table
+
     CognitoUserPool:
       Type: AWS::Cognito::UserPool
       Properties:
@@ -295,5 +346,7 @@ resources:
       Value:
         Ref: CognitoUserPoolClient
     # TODO: try and get this to populate properly using serverless-manifest-plugin
-#    ApiUrl:
-#      Value: !GetAtt Appsync-darren-dev.GraphQLUrl
+    ApiUrl:
+      Value: !GetAtt GraphQlApi.GraphQLUrl
+    ApiArn:
+      Value: !GetAtt GraphQlApi.Arn

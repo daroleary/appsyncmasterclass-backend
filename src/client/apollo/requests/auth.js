@@ -1,3 +1,4 @@
+import ulid from 'ulid'
 import {
   getMyProfileQuery,
   editMyProfileMutation,
@@ -5,7 +6,13 @@ import {
   getTweetsQuery,
   likeMutation,
   unlikeMutation,
-  getMyTimelineQuery, getLikesQuery, retweetMutation, followMutation, getProfileQuery, getFollowersQuery
+  getMyTimelineQuery,
+  getLikesQuery,
+  retweetMutation,
+  followMutation,
+  getProfileQuery,
+  getFollowersQuery,
+  getTweetQuery, notifyRetweetedMutation
 } from '../api/auth'
 
 export async function getMyProfile({ client }) {
@@ -15,7 +22,7 @@ export async function getMyProfile({ client }) {
       variables: {},
     });
 
-    return data.getMyProfile;
+    return data.getMyProfile
   } catch (error) {
     console.log('Error calling graphQL API: getMyProfile ', error)
     return null;
@@ -31,7 +38,7 @@ export async function getProfile({ screenName, client }) {
       },
     });
 
-    return data.getProfile;
+    return data.getProfile
   } catch (error) {
     console.log('Error calling graphQL API: getProfile ', error)
     return null;
@@ -47,7 +54,7 @@ export async function editMyProfile({ input, client }) {
       },
     });
 
-    return data.editMyProfile;
+    return data.editMyProfile
   } catch (error) {
     console.log('Error calling graphQL API: editMyProfile', error)
     return null;
@@ -63,30 +70,46 @@ export async function tweet({ text, client }) {
       },
     });
 
-    return data.tweet;
+    return data.tweet
   } catch (error) {
     console.log('Error calling graphQL API: tweet', error)
     return null;
   }
 }
 
-  export async function getTweets({ username, limit, nextToken, client }) {
-    try {
-      const { data } = await client.query({
-        query: getTweetsQuery,
-        variables: {
-          userId: username,
-          limit,
-          nextToken,
-        },
-      });
+export async function getTweet({ tweetId, client }) {
+  try {
+    const { data } = await client.query({
+      query: getTweetQuery,
+      variables: {
+        tweetId,
+      },
+    });
 
-      return data.getTweets;
-    } catch (error) {
-      console.log('Error calling graphQL API: getTweets', error)
-      return null;
-    }
+    return data.getTweet
+  } catch (error) {
+    console.log('Error calling graphQL API: getTweets', error)
+    return null;
   }
+}
+
+export async function getTweets({ username, limit, nextToken, client }) {
+  try {
+    const { data } = await client.query({
+      query: getTweetsQuery,
+      variables: {
+        userId: username,
+        limit,
+        nextToken,
+      },
+    });
+
+    return data.getTweets
+  } catch (error) {
+    console.log('Error calling graphQL API: getTweets', error)
+    return null;
+  }
+}
 
 export async function like({ tweetId, client }) {
   try {
@@ -97,7 +120,7 @@ export async function like({ tweetId, client }) {
       },
     });
 
-    return data.like;
+    return data.like
   } catch (error) {
     console.log('Error calling graphQL API: like', error)
     return null;
@@ -113,7 +136,7 @@ export async function unlike({ tweetId, client }) {
       },
     });
 
-    return data.unlike;
+    return data.unlike
   } catch (error) {
     console.log('Error calling graphQL API: unlike', error)
     return null;
@@ -164,7 +187,7 @@ export async function retweet({ tweetId, client }) {
       },
     });
 
-    return data.retweet;
+    return data.retweet
   } catch (error) {
     console.log('Error calling graphQL API: retweet', error)
     return null;
@@ -180,7 +203,7 @@ export async function follow({ userId, client }) {
       },
     });
 
-    return data.follow;
+    return data.follow
   } catch (error) {
     console.log('Error calling graphQL API: follow ', error)
     return null;
@@ -198,11 +221,32 @@ export async function getFollowers({ userId, limit, nextToken, client }) {
       },
     });
 
-    console.log('data: ', data);
+    console.log('data: ', data)
 
     return data.getFollowers
   } catch (error) {
     console.log('Error calling graphQL API: getFollowers', error)
+    return null;
+  }
+}
+
+export async function notifyRetweeted({ userId, tweetId, retweetId, retweetedBy, client }) {
+  try {
+    const id = ulid.ulid()
+    const { data } = await client.mutate({
+      mutation: notifyRetweetedMutation,
+      variables: {
+        id,
+        userId,
+        tweetId,
+        retweetId,
+        retweetedBy,
+      },
+    });
+
+    return data.notifyRetweeted
+  } catch (error) {
+    console.log('Error calling graphQL API: notifyRetweeted', error)
     return null;
   }
 }
